@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <!-- The app is offline by design, so the only sources the page may load from
+         are its own bundle. This is a second line of defence behind the Markdown
+         renderer, which already escapes raw HTML and filters link schemes. -->
+    <meta http-equiv="Content-Security-Policy"
+          content="default-src 'self'; img-src 'self' data: file:; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self' ws: wss:; object-src 'none'; base-uri 'none'"/>
+    <link rel="stylesheet" href="/style.css"/>
+    <title>noted</title>
+</head>
+<body>
+<div class="app">
+
+    <!-- Left: search and the note list -->
+    <aside class="sidebar">
+        <div class="sidebar-head">
+            <button class="new-btn" id="new-note" title="New note (Ctrl+N)">
+                <span aria-hidden="true">+</span> New note
+            </button>
+            <div class="search-box">
+                <input type="search" id="search" class="search-input" autocomplete="off"
+                       spellcheck="false" placeholder="Search notes…  (Ctrl+K)"
+                       aria-label="Search notes"/>
+                <button class="search-clear" id="search-clear" hidden aria-label="Clear search">×</button>
+            </div>
+            <p class="search-status" id="search-status" role="status" aria-live="polite"></p>
+        </div>
+        <ul class="note-list" id="note-list" aria-label="Notes"></ul>
+    </aside>
+
+    <!-- Right: the editor -->
+    <main class="editor" id="editor">
+        <div class="editor-bar">
+            <input type="text" id="title" class="title-input" placeholder="Title"
+                   autocomplete="off" aria-label="Note title"/>
+            <div class="editor-actions">
+                <span class="save-state" id="save-state" role="status" aria-live="polite"></span>
+                <button class="icon-btn" id="toggle-preview" title="Toggle preview (Ctrl+P)"
+                        aria-pressed="false">Preview</button>
+                <button class="icon-btn danger" id="delete-note" title="Delete note">Delete</button>
+            </div>
+        </div>
+
+        <div class="meta-row">
+            <label class="meta-field">
+                <span>Instrument</span>
+                <input type="text" id="instrument" autocomplete="off" placeholder="e.g. Keysight 34465A"/>
+            </label>
+            <label class="meta-field">
+                <span>DUT</span>
+                <input type="text" id="dut" autocomplete="off" placeholder="e.g. board rev C3"/>
+            </label>
+            <label class="meta-field">
+                <span>Tags</span>
+                <input type="text" id="tags" autocomplete="off" placeholder="comma separated"/>
+            </label>
+        </div>
+
+        <div class="panes" id="panes">
+            <textarea id="body" class="body-input" spellcheck="false"
+                      placeholder="What did you change, and why?&#10;&#10;Markdown works. Tables are handy for parameter values."
+                      aria-label="Note body"></textarea>
+            <article class="preview" id="preview" hidden aria-label="Rendered preview"></article>
+        </div>
+
+        <footer class="status-bar">
+            <span id="data-dir" class="data-dir" title="Back up noted by copying this folder"></span>
+        </footer>
+    </main>
+
+    <!-- Empty state, shown instead of the editor when nothing is selected -->
+    <div class="empty" id="empty" hidden>
+        <p>No note selected.</p>
+        <button class="new-btn" id="empty-new">Create one</button>
+    </div>
+</div>
+
+<div class="toast" id="toast" role="alert" hidden></div>
+
+<script type="module" src="/src/main.js"></script>
+</body>
+</html>

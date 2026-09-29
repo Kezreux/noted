@@ -1,0 +1,13 @@
+[Desktop Entry]
+Version=1.0
+Name=noted
+Comment=An offline logbook for a technical electronics test environment
+# The Exec line includes %u to pass the URL to the application
+Exec=/usr/local/bin/noted %u
+Terminal=false
+Type=Application
+Icon=noted
+Categories=Utility;
+StartupWMClass=noted
+
+ 

@@ -1,0 +1,16 @@
+# The design/plan document is kept out of the repo deliberately.
+design.md
+
+# Build output
+.task
+bin
+frontend/dist
+frontend/node_modules
+build/linux/appimage/build
+build/windows/nsis/MicrosoftEdgeWebview2Setup.exe
+
+
+# SQLite. WAL mode leaves -wal/-shm files beside the database.
+*.db
+*.db-wal
+*.db-shm

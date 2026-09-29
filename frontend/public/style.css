@@ -1,0 +1,366 @@
+/* noted -- a deliberately quiet dark theme. The window background in main.go
+   matches --bg so there is no flash before this file loads. */
+
+:root {
+    --bg: #18181b;
+    --bg-raised: #1f1f23;
+    --bg-input: #26262b;
+    --border: #33333a;
+    --border-strong: #46464f;
+    --text: #e8e8ea;
+    --text-dim: #a1a1aa;
+    --text-faint: #71717a;
+    --accent: #6aa9f0;
+    --accent-dim: #2d4a6b;
+    --mark-bg: #7a5c14;
+    --mark-text: #fef3c7;
+    --danger: #f08a8a;
+
+    --mono: ui-monospace, "Cascadia Code", "JetBrains Mono", Consolas, "DejaVu Sans Mono", monospace;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+/* The `hidden` attribute is only `display: none` in the UA stylesheet, so any
+   rule here that sets a display wins over it. Several elements below are flex
+   containers that get toggled with `hidden`, so make the attribute win. */
+[hidden] { display: none !important; }
+
+html, body {
+    margin: 0;
+    height: 100%;
+    overflow: hidden;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+/* Text is selectable, but the chrome is not: dragging across the UI should not
+   leave a stray selection behind. */
+body { user-select: none; }
+input, textarea, .preview, .excerpt, .data-dir { user-select: text; }
+
+.app {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    grid-template-rows: 100%;
+    height: 100%;
+}
+
+/* ---------------------------------------------------------------- sidebar */
+
+.sidebar {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    border-right: 1px solid var(--border);
+    background: var(--bg-raised);
+}
+
+.sidebar-head {
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    border-bottom: 1px solid var(--border);
+}
+
+.new-btn {
+    appearance: none;
+    border: 1px solid var(--border-strong);
+    background: var(--bg-input);
+    color: var(--text);
+    font: inherit;
+    padding: 7px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    text-align: left;
+}
+.new-btn:hover { border-color: var(--accent); color: #fff; }
+.new-btn span { color: var(--accent); font-weight: 600; }
+
+.search-box { position: relative; display: flex; }
+
+.search-input {
+    flex: 1;
+    min-width: 0;
+    appearance: none;
+    border: 1px solid var(--border-strong);
+    background: var(--bg-input);
+    color: var(--text);
+    font: inherit;
+    padding: 7px 26px 7px 10px;
+    border-radius: 6px;
+}
+.search-input::-webkit-search-cancel-button { display: none; }
+.search-input:focus { outline: none; border-color: var(--accent); }
+
+.search-clear {
+    position: absolute;
+    right: 4px; top: 50%;
+    transform: translateY(-50%);
+    border: 0; background: none;
+    color: var(--text-faint);
+    font-size: 17px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 2px 6px;
+}
+.search-clear:hover { color: var(--text); }
+
+.search-status {
+    margin: 0;
+    min-height: 1em;
+    font-size: 12px;
+    color: var(--text-faint);
+}
+
+.note-list {
+    list-style: none;
+    margin: 0;
+    padding: 4px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.note-item {
+    padding: 8px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    border: 1px solid transparent;
+}
+.note-item:hover { background: var(--bg-input); }
+.note-item.selected {
+    background: var(--accent-dim);
+    border-color: var(--accent);
+}
+
+.note-title {
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.note-title.untitled { color: var(--text-faint); font-weight: 400; font-style: italic; }
+
+.excerpt {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-top: 2px;
+    /* Two lines of context, then clip. */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.note-foot {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    margin-top: 4px;
+    font-size: 11px;
+    color: var(--text-faint);
+}
+
+.tag {
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 0 6px;
+    color: var(--text-dim);
+}
+
+mark {
+    background: var(--mark-bg);
+    color: var(--mark-text);
+    border-radius: 2px;
+    padding: 0 1px;
+}
+
+.list-empty {
+    padding: 16px 12px;
+    color: var(--text-faint);
+    font-size: 13px;
+}
+
+/* ----------------------------------------------------------------- editor */
+
+.editor {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    height: 100%;
+}
+
+.editor-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+}
+
+.title-input {
+    flex: 1;
+    min-width: 0;
+    appearance: none;
+    border: 0;
+    background: none;
+    color: var(--text);
+    font: 600 18px/1.3 var(--sans);
+    padding: 4px 0;
+}
+.title-input:focus { outline: none; }
+.title-input::placeholder { color: var(--text-faint); font-weight: 400; }
+
+.editor-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+
+.save-state {
+    font-size: 12px;
+    color: var(--text-faint);
+    min-width: 5.5em;
+    text-align: right;
+}
+
+.icon-btn {
+    appearance: none;
+    border: 1px solid var(--border-strong);
+    background: var(--bg-input);
+    color: var(--text-dim);
+    font: inherit;
+    font-size: 12px;
+    padding: 5px 9px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+.icon-btn:hover { color: var(--text); border-color: var(--accent); }
+.icon-btn[aria-pressed="true"] { background: var(--accent-dim); border-color: var(--accent); color: #fff; }
+.icon-btn.danger:hover { border-color: var(--danger); color: var(--danger); }
+
+.meta-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+}
+
+.meta-field { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.meta-field span { font-size: 11px; color: var(--text-faint); text-transform: uppercase; letter-spacing: .04em; }
+.meta-field input {
+    appearance: none;
+    border: 1px solid var(--border);
+    background: var(--bg-input);
+    color: var(--text);
+    font: inherit;
+    font-size: 13px;
+    padding: 5px 8px;
+    border-radius: 5px;
+    min-width: 0;
+}
+.meta-field input:focus { outline: none; border-color: var(--accent); }
+
+.panes { flex: 1; display: flex; min-height: 0; }
+
+.body-input {
+    flex: 1;
+    min-width: 0;
+    appearance: none;
+    border: 0;
+    resize: none;
+    background: none;
+    color: var(--text);
+    font: 13px/1.65 var(--mono);
+    padding: 14px;
+    tab-size: 4;
+}
+.body-input:focus { outline: none; }
+.body-input::placeholder { color: var(--text-faint); font-family: var(--sans); }
+
+.preview {
+    flex: 1;
+    min-width: 0;
+    overflow-y: auto;
+    padding: 14px 18px;
+    border-left: 1px solid var(--border);
+    font-size: 14px;
+}
+.preview > :first-child { margin-top: 0; }
+.preview h1, .preview h2, .preview h3 { line-height: 1.25; margin: 1.2em 0 .5em; }
+.preview h1 { font-size: 1.5em; }
+.preview h2 { font-size: 1.25em; }
+.preview h3 { font-size: 1.08em; }
+.preview code {
+    font-family: var(--mono);
+    font-size: .9em;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1px 4px;
+}
+.preview pre {
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 12px;
+    overflow-x: auto;
+}
+.preview pre code { background: none; border: 0; padding: 0; }
+.preview table { border-collapse: collapse; margin: 1em 0; display: block; overflow-x: auto; }
+.preview th, .preview td { border: 1px solid var(--border); padding: 5px 9px; text-align: left; }
+.preview th { background: var(--bg-input); }
+.preview blockquote {
+    margin: 1em 0;
+    padding-left: 12px;
+    border-left: 3px solid var(--border-strong);
+    color: var(--text-dim);
+}
+.preview a { color: var(--accent); }
+.preview img { max-width: 100%; }
+.preview hr { border: 0; border-top: 1px solid var(--border); }
+
+.status-bar {
+    padding: 6px 14px;
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--text-faint);
+    display: flex;
+    justify-content: flex-end;
+}
+.data-dir { font-family: var(--mono); }
+
+/* ------------------------------------------------------------ empty state */
+
+.empty {
+    grid-column: 2;
+    /* Row 1 explicitly: otherwise this lands in a second grid row and halves the
+       height available to the sidebar and editor. */
+    grid-row: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    color: var(--text-faint);
+}
+
+/* ------------------------------------------------------------------ toast */
+
+.toast {
+    position: fixed;
+    bottom: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #3b1d1d;
+    border: 1px solid var(--danger);
+    color: #fde2e2;
+    padding: 9px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    max-width: 70vw;
+    z-index: 10;
+}
